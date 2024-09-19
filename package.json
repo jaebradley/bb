@@ -1,0 +1,29 @@
+{
+  "name": "bb",
+  "version": "1.0.0",
+  "description": "BlueBikes CLI",
+  "main": "./dist/index.js",
+  "bin": {
+    "bb": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "npx tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "jae.b.bradley@gmail.com",
+  "license": "MIT",
+  "homepage": "https://github.com/jaebradley/bb",
+  "devDependencies": {
+    "@types/node": "^22.5.5",
+    "eslint": "^9.10.0",
+    "eslint-plugin-node": "^11.1.0",
+    "typescript": "^5.6.2"
+  },
+  "engines": {
+    "node": ">=8.10.0"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "enquirer": "^2.4.1"
+  }
+}
