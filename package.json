@@ -14,9 +14,12 @@
   "license": "MIT",
   "homepage": "https://github.com/jaebradley/bb",
   "devDependencies": {
+    "@types/axios": "^0.9.36",
     "@types/node": "^22.5.5",
+    "axios": "^1.7.7",
     "eslint": "^9.10.0",
     "eslint-plugin-node": "^11.1.0",
+    "tsx": "^4.19.1",
     "typescript": "^5.6.2"
   },
   "engines": {
