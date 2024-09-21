@@ -20,7 +20,7 @@ type Station = {
     station_id: string;
 }
 
-type StationResponse = {
+type StationsResponse = {
     data: {
         stations: Station[]
     };
@@ -29,7 +29,33 @@ type StationResponse = {
     version: string;
 }
 
+type StationStatus = {
+    num_bikes_disabled: number;
+    last_reported: number;
+    is_returning: number;
+    num_ebikes_available: number;
+    num_docks_disabled: number;
+    legacy_id: string;
+    is_installed: number;
+    eightd_has_available_keys: boolean;
+    num_bikes_available: number;
+    num_docks_available: number;
+    station_id: string;
+    is_renting: number;
+}
+
+type StationStatusResponse = {
+    data: {
+        stations: StationStatus[]
+    },
+    last_updated: number;
+    ttl: number;
+    version: string;
+}
+
 export {
     Station,
-    StationResponse
+    StationsResponse,
+    StationStatus,
+    StationStatusResponse,
 }

@@ -1,9 +1,14 @@
-import {StationResponse} from "./types.js";
+import {StationsResponse, StationStatusResponse} from "./types.js";
 
 interface IStationsAccessor {
-    getStations(): Promise<StationResponse>;
+    getStations(): Promise<StationsResponse>;
+}
+
+interface IStationStatusesAccessor {
+    getStationStatuses(): Promise<StationStatusResponse>;
 }
 
 export {
-    IStationsAccessor
+    IStationsAccessor,
+    IStationStatusesAccessor
 }

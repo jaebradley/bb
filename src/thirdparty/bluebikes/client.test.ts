@@ -14,4 +14,15 @@ describe("Client", () => {
             assert.ok(stationsData.data.stations.length)
         });
     });
+
+    describe('getStationStatuses', () => {
+        it('returns stations', async () => {
+            const client = new Client(axios.create());
+            const statusesData = await client.getStationStatuses();
+            assert.ok(statusesData)
+            assert.ok(statusesData.data)
+            assert.ok(statusesData.data.stations)
+            assert.ok(statusesData.data.stations.length)
+        });
+    })
 });
