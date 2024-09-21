@@ -24,5 +24,16 @@ describe("Client", () => {
             assert.ok(statusesData.data.stations)
             assert.ok(statusesData.data.stations.length)
         });
+    });
+
+    describe('getStationEbikes', () => {
+        it('returns station ebikes', async () => {
+            const client = new Client(axios.create());
+            const ebikesData = await client.getStationEbikes();
+            assert.ok(ebikesData)
+            assert.ok(ebikesData.data)
+            assert.ok(ebikesData.data.stations)
+            assert.ok(ebikesData.data.stations.length)
+        });
     })
 });

@@ -53,9 +53,37 @@ type StationStatusResponse = {
     version: string;
 }
 
+type EBikeInformation = {
+    battery_charge_percentage: number;
+    make_and_model: string;
+    displayed_number: string;
+    rideable_id: string;
+    docking_capability: number;
+    range_estimate: {
+        conservative_range_miles: number;
+        estimated_range_miles: number;
+    };
+    is_lbs_internal_rideable: boolean;
+}
+
+type StationEbikes = {
+    station_id: string;
+    ebikes: EBikeInformation[];
+}
+
+type StationEBikesResponse = {
+    data: {
+        stations: StationEbikes[]
+    },
+    last_updated: number;
+    ttl: number;
+    version: string;
+}
+
 export {
     Station,
     StationsResponse,
     StationStatus,
     StationStatusResponse,
+    StationEBikesResponse
 }
