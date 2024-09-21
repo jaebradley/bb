@@ -19,5 +19,5 @@
     "skipLibCheck": true,
     "moduleResolution": "node16"
   },
-  "exclude": ["src/**/*.json"]
+  "exclude": ["src/**/*.json", "src/**/*.test.ts"]
 }

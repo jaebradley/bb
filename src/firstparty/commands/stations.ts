@@ -1,34 +1,28 @@
 import {Command} from "commander";
-import Client from "../thirdparty/bluebikes/client.js";
+import Client from "../../thirdparty/bluebikes/client.js";
 import axios from "axios";
 import * as console from "node:console";
-import {StationEBikesResponse, StationsResponse, StationStatusResponse} from "../thirdparty/bluebikes/types.js";
+import {StationEBikesResponse, StationStatusResponse} from "../../thirdparty/bluebikes/types.js";
+import {StationService} from "../data/services/bluebikes";
+import {TableGenerator} from "../data/services/tables";
+import {StationCommandProcessor} from "./service";
+
+
+const commandProcessor = new StationCommandProcessor(
+    new StationService(new Client(axios.create())),
+    new TableGenerator()
+);
 
 const stationsCommand = new Command("stations");
 
+stationsCommand.alias("s");
+
 stationsCommand
     .command("info")
+    .alias("i")
     .argument("<identifier>", "Value can be the station's unique ID, or the station name")
-    .action(async (identifier) => {
-        const client = new Client(axios.create());
-        let stationResponse: StationsResponse;
-        try {
-            stationResponse = await client.getStations();
-        } catch (error) {
-            console.error("An error occurred", error);
-            return;
-        }
-
-        const matchingStation = stationResponse
-            .data
-            .stations
-            .find(station => station.station_id === identifier);
-
-        if (matchingStation) {
-            console.log(matchingStation);
-        } else {
-            console.log("Could not find matching station for", identifier);
-        }
+    .action((specifiedIdentifier: string) => {
+        commandProcessor.processStationInformationCommand(specifiedIdentifier);
     });
 
 stationsCommand
