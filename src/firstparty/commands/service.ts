@@ -1,29 +1,34 @@
-import {IStationAccessor, IStationEbikesAccessor} from "../data/services/bluebikes";
-import {ITableGenerator} from "../data/services/tables";
-import {EBikeInformation, Station} from "../../thirdparty/bluebikes/types";
+import {IStationEbikesAccessor, IStationsAccessor} from "../data/services/bluebikes.js";
+import {ITableGenerator} from "../data/services/tables.js";
+import {EBikeInformation, Station} from "../../thirdparty/bluebikes/types.js";
 import console from "node:console";
-import {IDeserializer} from "../data/serializers/strings";
-import {Id, Name} from "../data/types/bluebikes/stations";
+import {IDeserializer} from "../data/serializers/strings.js";
+import {Id, Name} from "../data/types/bluebikes/stations.js";
+// @ts-ignore
+import yoctoSpinner from "yocto-spinner";
 
 interface IStationCommandProcessor {
     processStationInformationCommand(stationIdentifier: string): Promise<undefined>
+
     processStationEbikesInformationCommand(stationIdentifier: string): Promise<undefined>
+
+    processStationSearchCommand(stationIdentifier: string, limit: number): Promise<undefined>;
 }
 
 class StationCommandProcessor implements IStationCommandProcessor {
-    private readonly stationAccessor: IStationAccessor;
+    private readonly stationsAccessor: IStationsAccessor;
     private readonly ebikesAccessor: IStationEbikesAccessor;
     private readonly tableGenerator: ITableGenerator;
     private readonly stationIdDeserializer: IDeserializer<Id>;
     private readonly stationNameDeserializer: IDeserializer<Name>;
 
 
-    constructor(stationAccessor: IStationAccessor,
+    constructor(stationAccessor: IStationsAccessor,
                 ebikesAccessor: IStationEbikesAccessor,
                 tableGenerator: ITableGenerator,
                 stationIdDeserializer: IDeserializer<Id>,
                 stationNameDeserializer: IDeserializer<Name>) {
-        this.stationAccessor = stationAccessor;
+        this.stationsAccessor = stationAccessor;
         this.ebikesAccessor = ebikesAccessor;
         this.tableGenerator = tableGenerator;
         this.stationIdDeserializer = stationIdDeserializer;
@@ -36,14 +41,14 @@ class StationCommandProcessor implements IStationCommandProcessor {
         if (deserializedIdentifier) {
             let station: Station | undefined;
             try {
-                station = await this.stationAccessor.getStation(deserializedIdentifier);
+                station = await this.stationsAccessor.getStation(deserializedIdentifier);
             } catch (error) {
                 console.error("An error occurred", error);
                 return;
             }
 
             if (station) {
-                console.log(this.tableGenerator.generateStationTable(station).toString())
+                console.log(this.tableGenerator.generateStationsTable([station]).toString())
             } else {
                 console.error("Could not find matching station for", stationIdentifier);
             }
@@ -73,6 +78,15 @@ class StationCommandProcessor implements IStationCommandProcessor {
             }
         } else {
             console.error("Invalid station id", stationIdentifier);
+        }
+    }
+
+    async processStationSearchCommand(stationIdentifier: string, limit: number): Promise<undefined> {
+        const deserializedIdentifier = this.stationNameDeserializer.deserialize(stationIdentifier);
+        if (deserializedIdentifier) {
+            const stations = await this.stationsAccessor.searchStations(deserializedIdentifier, limit);
+            console.log(this.tableGenerator.generateStationsTable(stations).toString());
+            console.log("\n");
         }
     }
 }

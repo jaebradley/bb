@@ -1,9 +1,10 @@
 import {beforeEach, describe, it} from "node:test";
-import {StationService} from "../../services/bluebikes";
-import Client from "../../../../thirdparty/bluebikes/client";
+import {StationService} from "../../services/bluebikes.js";
+import Client from "../../../../thirdparty/bluebikes/client.js";
 import axios from "axios";
-import {NonEmptyString, UUID} from "../strings";
+import {NonEmptyString, UUID} from "../strings.js";
 import assert from "node:assert";
+import {SearchService} from "../../services/search.js";
 
 describe('StationsService', () => {
     let client: Client;
@@ -11,7 +12,7 @@ describe('StationsService', () => {
     beforeEach(
         () => {
             client = new Client(axios.create());
-            service = new StationService(client, client);
+            service = new StationService(client, client, new SearchService(client));
         }
     )
     describe('getStation', () => {

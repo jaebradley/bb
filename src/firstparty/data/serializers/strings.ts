@@ -1,4 +1,4 @@
-import {NonEmptyString, UUID} from "../types/strings";
+import {NonEmptyString, UUID} from "../types/strings.js";
 
 interface ISerializer<T> {
     serialize(value: T): string;
