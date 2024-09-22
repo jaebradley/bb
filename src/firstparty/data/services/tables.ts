@@ -1,9 +1,11 @@
 // @ts-ignore
 import Table from "cli-table3";
-import {Station} from "../../../thirdparty/bluebikes/types";
+import {EBikeInformation, Station} from "../../../thirdparty/bluebikes/types";
 
 interface ITableGenerator {
     generateStationTable(station: Station): Table;
+
+    generateEbikesTable(ebikes: EBikeInformation[]): Table;
 }
 
 class TableGenerator implements ITableGenerator {
@@ -18,6 +20,14 @@ class TableGenerator implements ITableGenerator {
             station.lat,
             station.lon
         ]);
+        return table;
+    }
+
+    generateEbikesTable(ebikes: EBikeInformation[]): Table {
+        const table = new Table({
+            head: ['Battery', 'Range'],
+        });
+        ebikes.forEach(ebike => table.push([ebike.battery_charge_percentage, ebike.range_estimate.estimated_range_miles]))
         return table;
     }
 }
