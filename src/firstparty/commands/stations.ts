@@ -2,15 +2,20 @@ import {Command} from "commander";
 import Client from "../../thirdparty/bluebikes/client.js";
 import axios from "axios";
 import * as console from "node:console";
-import {StationEBikesResponse, StationStatusResponse} from "../../thirdparty/bluebikes/types.js";
+import {StationStatusResponse} from "../../thirdparty/bluebikes/types.js";
 import {StationService} from "../data/services/bluebikes";
 import {TableGenerator} from "../data/services/tables";
 import {StationCommandProcessor} from "./service";
+import {NonEmptyStringSerializationUtility, UUIDSerializationUtility} from "../data/serializers/strings";
 
+const stationService = new StationService(new Client(axios.create()), new Client(axios.create()));
 
 const commandProcessor = new StationCommandProcessor(
-    new StationService(new Client(axios.create())),
-    new TableGenerator()
+    stationService,
+    stationService,
+    new TableGenerator(),
+    UUIDSerializationUtility.DEFAULT_INSTANCE,
+    NonEmptyStringSerializationUtility.DEFAULT_INSTANCE
 );
 
 const stationsCommand = new Command("stations");
@@ -52,28 +57,10 @@ stationsCommand
 
 stationsCommand
     .command("ebikes")
+    .alias("e")
     .argument("<identifier>", "Value can be the station's unique ID, or the station name")
     .action(async (identifier) => {
-        const client = new Client(axios.create());
-        let ebikesResponse: StationEBikesResponse;
-        try {
-            ebikesResponse = await client.getStationEbikes();
-        } catch (error) {
-            console.error("An error occurred", error);
-            return;
-        }
-
-        const matchingStationEbikes = ebikesResponse
-            .data
-            .stations
-            .filter(station => station.station_id === `motivate_BOS_${identifier}`)
-            .flatMap(v => v.ebikes);
-
-        if (matchingStationEbikes) {
-            console.log(matchingStationEbikes);
-        } else {
-            console.log("Could not find any ebikes at the specified station", identifier);
-        }
+        commandProcessor.processStationEbikesInformationCommand(identifier);
     });
 
 export default stationsCommand;

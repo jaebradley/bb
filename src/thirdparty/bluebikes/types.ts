@@ -85,5 +85,7 @@ export {
     StationsResponse,
     StationStatus,
     StationStatusResponse,
-    StationEBikesResponse
+    StationEBikesResponse,
+    StationEbikes,
+    EBikeInformation,
 }
