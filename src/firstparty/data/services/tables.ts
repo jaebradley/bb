@@ -29,7 +29,9 @@ class TableGenerator implements ITableGenerator {
                 station.station_id,
                 station.capacity,
                 station.lat,
-                station.lon
+                station.lon,
+                // // @ts-ignore
+                // station.ebikes.map(ebike => ebike.range_estimate.estimated_range_miles).join(' | '),
             ]);
         })
 

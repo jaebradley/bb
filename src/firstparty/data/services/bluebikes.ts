@@ -10,7 +10,7 @@ import {NonEmptyString} from "../types/strings.js";
 interface IStationsAccessor {
     getStation(identifier: Id | Name): Promise<Station | undefined>;
 
-    searchStations(searchTerm: NonEmptyString, limit: number): Promise<Station[]>;
+    searchStations(searchTerm: NonEmptyString, minimumEbikesRange: number, limit: number): Promise<Station[]>;
 }
 
 interface IStationEbikesAccessor {
@@ -39,8 +39,8 @@ class StationService implements IStationsAccessor, IStationEbikesAccessor {
         return ebikes.data.stations.filter(v => v.station_id === `motivate_BOS_${identifier.value}`).flatMap(v => v.ebikes);
     }
 
-    async searchStations(searchTerm: NonEmptyString, limit: number): Promise<Station[]> {
-        return this.searchService.getResults(searchTerm, limit)
+    async searchStations(searchTerm: NonEmptyString,  minimumEbikesRange: number, limit: number): Promise<Station[]> {
+        return this.searchService.getResults(searchTerm, minimumEbikesRange, limit)
     }
 }
 

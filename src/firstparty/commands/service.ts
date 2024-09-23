@@ -4,15 +4,14 @@ import {EBikeInformation, Station} from "../../thirdparty/bluebikes/types.js";
 import console from "node:console";
 import {IDeserializer} from "../data/serializers/strings.js";
 import {Id, Name} from "../data/types/bluebikes/stations.js";
-// @ts-ignore
-import yoctoSpinner from "yocto-spinner";
 
 interface IStationCommandProcessor {
     processStationInformationCommand(stationIdentifier: string): Promise<undefined>
 
     processStationEbikesInformationCommand(stationIdentifier: string): Promise<undefined>
 
-    processStationSearchCommand(stationIdentifier: string, limit: number): Promise<undefined>;
+    // TODO: @jaebradley create a range class
+    processStationSearchCommand(stationIdentifier: string, limit: number, minimumEbikesRange: number): Promise<undefined>;
 }
 
 class StationCommandProcessor implements IStationCommandProcessor {
@@ -81,10 +80,10 @@ class StationCommandProcessor implements IStationCommandProcessor {
         }
     }
 
-    async processStationSearchCommand(stationIdentifier: string, limit: number): Promise<undefined> {
+    async processStationSearchCommand(stationIdentifier: string, limit: number, minimumEbikesRange: number): Promise<undefined> {
         const deserializedIdentifier = this.stationNameDeserializer.deserialize(stationIdentifier);
         if (deserializedIdentifier) {
-            const stations = await this.stationsAccessor.searchStations(deserializedIdentifier, limit);
+            const stations = await this.stationsAccessor.searchStations(deserializedIdentifier, minimumEbikesRange, limit);
             console.log(this.tableGenerator.generateStationsTable(stations).toString());
             console.log("\n");
         }

@@ -11,7 +11,7 @@ import {SearchService} from "../data/services/search.js";
 import yoctoSpinner from "yocto-spinner";
 
 const client = new Client(axios.create());
-const stationService = new StationService(client, client, new SearchService(client));
+const stationService = new StationService(client, client, new SearchService(client, client));
 
 const commandProcessor = new StationCommandProcessor(
     stationService,
@@ -63,18 +63,23 @@ stationsCommand
     .alias("e")
     .argument("<identifier>", "Value can be the station's unique ID, or the station name")
     .action(async (identifier) => {
-        commandProcessor.processStationEbikesInformationCommand(identifier);
+        await commandProcessor.processStationEbikesInformationCommand(identifier);
     });
 
-stationsCommand
+const searchCommand = stationsCommand
     .command("search")
-    .alias("q")
-    .argument("<identifier>", "Station name or ID to search for")
-    .argument("[limit]", "Value is a positive number for the maximum inclusive number of results to return", 5)
-    .action(async (identifier, limit) => {
+    .alias("q");
+
+searchCommand
+    .command("name")
+    .alias("n")
+    .argument("<name>", "Station name")
+    .option("-l, --limit [limit]", "Value is a positive number for the maximum inclusive number of results to return", parseInt, 5)
+    .option("-r, --min-range [range]", "Value is a non-negative number for the minimum (inclusive) desired range for ebikes in miles", parseFloat, 0)
+    .action(async (name, { limit, minRange }) => {
         const spinner = yoctoSpinner({text: 'Searching stations\n'}).start();
         try {
-            await commandProcessor.processStationSearchCommand(identifier, limit);
+            await commandProcessor.processStationSearchCommand(name, limit, minRange );
         } finally {
             spinner.stop();
             spinner.clear();
