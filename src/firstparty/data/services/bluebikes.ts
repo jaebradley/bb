@@ -1,26 +1,32 @@
-import {EBikeInformation, Station} from "../../../thirdparty/bluebikes/types";
-import {Id, Name} from "../types/bluebikes/stations";
+import {EBikeInformation, Station} from "../../../thirdparty/bluebikes/types.js";
+import {Id, Name} from "../types/bluebikes/stations.js";
 import {
     IStationEbikesAccessor as IClientStationEbikesAccessor,
-    IStationsAccessor
-} from "../../../thirdparty/bluebikes/interfaces";
+    IStationsAccessor as IClientStationsAccessor,
+} from "../../../thirdparty/bluebikes/interfaces.js";
+import {ISearch} from "./search.js";
+import {NonEmptyString} from "../types/strings.js";
 
-interface IStationAccessor {
+interface IStationsAccessor {
     getStation(identifier: Id | Name): Promise<Station | undefined>;
+
+    searchStations(searchTerm: NonEmptyString, minimumEbikesRange: number, limit: number): Promise<Station[]>;
 }
 
 interface IStationEbikesAccessor {
     getEbikes(identifier: Id): Promise<EBikeInformation[] | undefined>;
 }
 
-class StationService implements IStationAccessor, IStationEbikesAccessor {
-    private readonly stationsAccessor: IStationsAccessor;
+class StationService implements IStationsAccessor, IStationEbikesAccessor {
+    private readonly stationsAccessor: IClientStationsAccessor;
     private readonly ebikesAccessor: IClientStationEbikesAccessor;
+    private readonly searchService: ISearch;
 
 
-    constructor(stationsAccessor: IStationsAccessor, ebikesAccessor: IClientStationEbikesAccessor) {
+    constructor(stationsAccessor: IClientStationsAccessor, ebikesAccessor: IClientStationEbikesAccessor, searchService: ISearch) {
         this.stationsAccessor = stationsAccessor;
         this.ebikesAccessor = ebikesAccessor;
+        this.searchService = searchService;
     }
 
     async getStation(identifier: Id | Name): Promise<Station | undefined> {
@@ -32,10 +38,14 @@ class StationService implements IStationAccessor, IStationEbikesAccessor {
         const ebikes = await this.ebikesAccessor.getStationEbikes();
         return ebikes.data.stations.filter(v => v.station_id === `motivate_BOS_${identifier.value}`).flatMap(v => v.ebikes);
     }
+
+    async searchStations(searchTerm: NonEmptyString,  minimumEbikesRange: number, limit: number): Promise<Station[]> {
+        return this.searchService.getResults(searchTerm, minimumEbikesRange, limit)
+    }
 }
 
 export {
-    IStationAccessor,
+    IStationsAccessor,
     IStationEbikesAccessor,
     StationService
 }

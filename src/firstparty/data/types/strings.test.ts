@@ -1,5 +1,5 @@
 import {describe, it} from "node:test";
-import {NonEmptyString, UUID} from "./strings";
+import {NonEmptyString, UUID} from "./strings.js";
 import assert from "node:assert";
 
 describe("strings", () => {
@@ -19,9 +19,9 @@ describe("strings", () => {
     });
 
     describe('UUID', () => {
-       it('is valid for an upper-case UUID', () => {
-           const uuid = new UUID("909D42B1-32B8-41D9-809B-CC61E38E33AF");
-           assert.equal("909D42B1-32B8-41D9-809B-CC61E38E33AF", uuid.value)
-       })
+        it('is valid for an upper-case UUID', () => {
+            const uuid = new UUID("909D42B1-32B8-41D9-809B-CC61E38E33AF");
+            assert.equal("909D42B1-32B8-41D9-809B-CC61E38E33AF", uuid.value)
+        })
     });
 })

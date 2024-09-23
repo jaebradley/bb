@@ -2,6 +2,7 @@
   "name": "bb",
   "version": "1.0.0",
   "description": "BlueBikes CLI",
+  "type": "module",
   "main": "./dist/index.js",
   "bin": {
     "bb": "./dist/index.js"
@@ -14,6 +15,7 @@
   "license": "MIT",
   "homepage": "https://github.com/jaebradley/bb",
   "devDependencies": {
+    "@commander-js/extra-typings": "^12.1.0",
     "@types/axios": "^0.9.36",
     "@types/node": "^22.5.5",
     "axios": "^1.7.7",
@@ -28,6 +30,7 @@
   "dependencies": {
     "cli-table3": "^0.4.0",
     "commander": "^12.1.0",
-    "enquirer": "^2.4.1"
+    "minisearch": "^7.1.0",
+    "yocto-spinner": "^0.1.0"
   }
 }

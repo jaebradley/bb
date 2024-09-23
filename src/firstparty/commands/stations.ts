@@ -3,12 +3,15 @@ import Client from "../../thirdparty/bluebikes/client.js";
 import axios from "axios";
 import * as console from "node:console";
 import {StationStatusResponse} from "../../thirdparty/bluebikes/types.js";
-import {StationService} from "../data/services/bluebikes";
-import {TableGenerator} from "../data/services/tables";
-import {StationCommandProcessor} from "./service";
-import {NonEmptyStringSerializationUtility, UUIDSerializationUtility} from "../data/serializers/strings";
+import {StationService} from "../data/services/bluebikes.js";
+import {TableGenerator} from "../data/services/tables.js";
+import {StationCommandProcessor} from "./service.js";
+import {NonEmptyStringSerializationUtility, UUIDSerializationUtility} from "../data/serializers/strings.js";
+import {SearchService} from "../data/services/search.js";
+import yoctoSpinner from "yocto-spinner";
 
-const stationService = new StationService(new Client(axios.create()), new Client(axios.create()));
+const client = new Client(axios.create());
+const stationService = new StationService(client, client, new SearchService(client, client));
 
 const commandProcessor = new StationCommandProcessor(
     stationService,
@@ -60,7 +63,28 @@ stationsCommand
     .alias("e")
     .argument("<identifier>", "Value can be the station's unique ID, or the station name")
     .action(async (identifier) => {
-        commandProcessor.processStationEbikesInformationCommand(identifier);
+        await commandProcessor.processStationEbikesInformationCommand(identifier);
     });
+
+const searchCommand = stationsCommand
+    .command("search")
+    .alias("q");
+
+searchCommand
+    .command("name")
+    .alias("n")
+    .argument("<name>", "Station name")
+    .option("-l, --limit [limit]", "Value is a positive number for the maximum inclusive number of results to return", parseInt, 5)
+    .option("-r, --min-range [range]", "Value is a non-negative number for the minimum (inclusive) desired range for ebikes in miles", parseFloat, 0)
+    .action(async (name, { limit, minRange }) => {
+        const spinner = yoctoSpinner({text: 'Searching stations\n'}).start();
+        try {
+            await commandProcessor.processStationSearchCommand(name, limit, minRange );
+        } finally {
+            spinner.stop();
+            spinner.clear();
+        }
+    })
+
 
 export default stationsCommand;

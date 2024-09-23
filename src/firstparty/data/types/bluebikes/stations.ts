@@ -1,4 +1,4 @@
-import {NonEmptyString, UUID} from "../strings";
+import {NonEmptyString, UUID} from "../strings.js";
 
 type Id = UUID;
 type Name = NonEmptyString;
