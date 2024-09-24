@@ -84,7 +84,7 @@ class StationCommandProcessor implements IStationCommandProcessor {
         const deserializedIdentifier = this.stationNameDeserializer.deserialize(stationIdentifier);
         if (deserializedIdentifier) {
             const stations = await this.stationsAccessor.searchStations(deserializedIdentifier, minimumEbikesRange, limit);
-            console.log(this.tableGenerator.generateStationsTable(stations).toString());
+            console.log(this.tableGenerator.generateSearchResultsTable(stations).toString());
             console.log("\n");
         }
     }

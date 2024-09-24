@@ -4,13 +4,13 @@ import {
     IStationEbikesAccessor as IClientStationEbikesAccessor,
     IStationsAccessor as IClientStationsAccessor,
 } from "../../../thirdparty/bluebikes/interfaces.js";
-import {ISearch} from "./search.js";
+import {ISearch, SearchResult} from "./search.js";
 import {NonEmptyString} from "../types/strings.js";
 
 interface IStationsAccessor {
     getStation(identifier: Id | Name): Promise<Station | undefined>;
 
-    searchStations(searchTerm: NonEmptyString, minimumEbikesRange: number, limit: number): Promise<Station[]>;
+    searchStations(searchTerm: NonEmptyString, minimumEbikesRange: number, limit: number): Promise<SearchResult[]>;
 }
 
 interface IStationEbikesAccessor {
@@ -39,7 +39,7 @@ class StationService implements IStationsAccessor, IStationEbikesAccessor {
         return ebikes.data.stations.filter(v => v.station_id === `motivate_BOS_${identifier.value}`).flatMap(v => v.ebikes);
     }
 
-    async searchStations(searchTerm: NonEmptyString,  minimumEbikesRange: number, limit: number): Promise<Station[]> {
+    async searchStations(searchTerm: NonEmptyString,  minimumEbikesRange: number, limit: number): Promise<SearchResult[]> {
         return this.searchService.getResults(searchTerm, minimumEbikesRange, limit)
     }
 }
