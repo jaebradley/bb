@@ -8,10 +8,11 @@ import {TableGenerator} from "../data/services/tables.js";
 import {StationCommandProcessor} from "./service.js";
 import {NonEmptyStringSerializationUtility, UUIDSerializationUtility} from "../data/serializers/strings.js";
 import {SearchService} from "../data/services/search.js";
+// @ts-ignore
 import yoctoSpinner from "yocto-spinner";
 
 const client = new Client(axios.create());
-const stationService = new StationService(client, client, new SearchService(client, client));
+const stationService = new StationService(client, client, new SearchService(client, client, client));
 
 const commandProcessor = new StationCommandProcessor(
     stationService,
@@ -76,10 +77,10 @@ searchCommand
     .argument("<name>", "Station name")
     .option("-l, --limit [limit]", "Value is a positive number for the maximum inclusive number of results to return", parseInt, 5)
     .option("-r, --min-range [range]", "Value is a non-negative number for the minimum (inclusive) desired range for ebikes in miles", parseFloat, 0)
-    .action(async (name, { limit, minRange }) => {
+    .action(async (name, {limit, minRange}) => {
         const spinner = yoctoSpinner({text: 'Searching stations\n'}).start();
         try {
-            await commandProcessor.processStationSearchCommand(name, limit, minRange );
+            await commandProcessor.processStationSearchCommand(name, limit, minRange);
         } finally {
             spinner.stop();
             spinner.clear();
