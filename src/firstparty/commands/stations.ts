@@ -69,18 +69,32 @@ stationsCommand
 
 const searchCommand = stationsCommand
     .command("search")
-    .alias("q");
+    .alias("s");
 
 searchCommand
-    .command("name")
-    .alias("n")
+    .argument("<name>", "Station name")
+    .option("-l, --limit [limit]", "Value is a positive number for the maximum inclusive number of results to return", parseInt, 5)
+    .action(async (name, {limit}) => {
+        const spinner = yoctoSpinner({text: 'Searching stations\n'}).start();
+        try {
+            await commandProcessor.processStationSearchCommand(name, limit);
+        } finally {
+            spinner.stop();
+            spinner.clear();
+        }
+    })
+
+searchCommand
+    .command("ebikes")
+    .alias("e")
     .argument("<name>", "Station name")
     .option("-l, --limit [limit]", "Value is a positive number for the maximum inclusive number of results to return", parseInt, 5)
     .option("-r, --min-range [range]", "Value is a non-negative number for the minimum (inclusive) desired range for ebikes in miles", parseFloat, 0)
-    .action(async (name, {limit, minRange}) => {
+    .option("-c, --min-count [count]", "Value is a positive integer for the minimum (inclusive) desired ebikes at station", parseFloat, 1)
+    .action(async (name, {limit, minRange, minCount}) => {
         const spinner = yoctoSpinner({text: 'Searching stations\n'}).start();
         try {
-            await commandProcessor.processStationSearchCommand(name, limit, minRange);
+            await commandProcessor.processStationEbikesSearchCommand(name, limit, minRange, minCount);
         } finally {
             spinner.stop();
             spinner.clear();
