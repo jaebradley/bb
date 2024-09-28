@@ -11,7 +11,8 @@ interface IStationCommandProcessor {
     processStationEbikesInformationCommand(stationIdentifier: string): Promise<undefined>
 
     // TODO: @jaebradley create a range class
-    processStationSearchCommand(stationIdentifier: string, limit: number, minimumEbikesRange: number): Promise<undefined>;
+    processStationSearchCommand(stationIdentifier: string, limit: number): Promise<undefined>;
+    processStationEbikesSearchCommand(stationIdentifier: string, limit: number, minimumEbikesRange: number, minimumEbikesCount: number): Promise<undefined>;
 }
 
 class StationCommandProcessor implements IStationCommandProcessor {
@@ -80,11 +81,20 @@ class StationCommandProcessor implements IStationCommandProcessor {
         }
     }
 
-    async processStationSearchCommand(stationIdentifier: string, limit: number, minimumEbikesRange: number): Promise<undefined> {
+    async processStationSearchCommand(stationIdentifier: string, limit: number): Promise<undefined> {
         const deserializedIdentifier = this.stationNameDeserializer.deserialize(stationIdentifier);
         if (deserializedIdentifier) {
-            const stations = await this.stationsAccessor.searchStations(deserializedIdentifier, minimumEbikesRange, limit);
+            const stations = await this.stationsAccessor.searchStations(deserializedIdentifier, limit);
             console.log(this.tableGenerator.generateSearchResultsTable(stations).toString());
+            console.log("\n");
+        }
+    }
+
+    async processStationEbikesSearchCommand(stationIdentifier: string, limit: number, minimumEbikesRange: number, minimumEbikesCount: number): Promise<undefined> {
+        const deserializedIdentifier = this.stationNameDeserializer.deserialize(stationIdentifier);
+        if (deserializedIdentifier) {
+            const stations = await this.stationsAccessor.searchStationsByEbikeFilters(deserializedIdentifier, minimumEbikesRange, minimumEbikesCount, limit);
+            console.log(this.tableGenerator.generateEbikesSearchResultsTable(stations).toString());
             console.log("\n");
         }
     }

@@ -9,6 +9,7 @@ interface ITableGenerator {
     generateEbikesTable(ebikes: EBikeInformation[]): Table;
 
     generateSearchResultsTable(results: SearchResult[]): Table;
+    generateEbikesSearchResultsTable(results: SearchResult[]): Table;
 }
 
 class TableGenerator implements ITableGenerator {
@@ -73,6 +74,37 @@ class TableGenerator implements ITableGenerator {
                 `Available: ${result.status.num_bikes_available} | Disabled: ${result.status.num_bikes_disabled} | ${serializeEbikeData(result)}`,
                 serializeDocksData(result),
 
+            ]);
+        })
+
+        return table;
+    }
+
+    generateEbikesSearchResultsTable(results: SearchResult[]) {
+        const table = new Table({
+            head: ['Name', 'eBikes', 'Range Available'],
+        });
+
+        /**
+         * TODO: @jaebradley make this type require at least one ebike
+         * @param result
+         */
+        const serializeEbikeData = (result: SearchResult) => {
+            const allRangeEstimates = result.ebikes.map(ebike => ebike.range_estimate).map(estimate => estimate.estimated_range_miles);
+            const maxRangeEstimate = Math.max(...allRangeEstimates);
+            const minRangeEstimate = Math.min(...allRangeEstimates);
+
+            if (1 === result.status.num_ebikes_available) {
+                return `${minRangeEstimate}`;
+            }
+
+            return `${minRangeEstimate}-${maxRangeEstimate}`;
+        }
+        results.forEach(result => {
+            table.push([
+                result.name,
+                result.ebikes.length,
+                serializeEbikeData(result),
             ]);
         })
 

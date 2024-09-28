@@ -10,7 +10,8 @@ import {NonEmptyString} from "../types/strings.js";
 interface IStationsAccessor {
     getStation(identifier: Id | Name): Promise<Station | undefined>;
 
-    searchStations(searchTerm: NonEmptyString, minimumEbikesRange: number, limit: number): Promise<SearchResult[]>;
+    searchStations(searchTerm: NonEmptyString, limit: number): Promise<SearchResult[]>;
+    searchStationsByEbikeFilters(searchTerm: NonEmptyString, minimumEbikesRange: number, minCount: number, limit: number): Promise<SearchResult[]>;
 }
 
 interface IStationEbikesAccessor {
@@ -39,8 +40,12 @@ class StationService implements IStationsAccessor, IStationEbikesAccessor {
         return ebikes.data.stations.filter(v => v.station_id === `motivate_BOS_${identifier.value}`).flatMap(v => v.ebikes);
     }
 
-    async searchStations(searchTerm: NonEmptyString,  minimumEbikesRange: number, limit: number): Promise<SearchResult[]> {
-        return this.searchService.getResults(searchTerm, minimumEbikesRange, limit)
+    async searchStations(searchTerm: NonEmptyString,  limit: number): Promise<SearchResult[]> {
+        return this.searchService.getResults(searchTerm, limit)
+    }
+
+    async searchStationsByEbikeFilters(searchTerm: NonEmptyString, minimumEbikesRange: number, minCount: number, limit: number) {
+        return this.searchService.getEbikesResults(searchTerm, minimumEbikesRange, minCount, limit)
     }
 }
 

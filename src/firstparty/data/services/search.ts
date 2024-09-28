@@ -13,7 +13,9 @@ type SearchResult = {
 } & Station;
 
 interface ISearch {
-    getResults(term: NonEmptyString, minimumEbikesRange: number, limit: number): Promise<SearchResult[]>;
+    getResults(term: NonEmptyString, limit: number): Promise<SearchResult[]>;
+
+    getEbikesResults(term: NonEmptyString, minimumEbikesRange: number, minimumEbikesCount: number, limit: number): Promise<SearchResult[]>;
 }
 
 class SearchService implements ISearch {
@@ -37,7 +39,29 @@ class SearchService implements ISearch {
     }
 
     // TODO: @jaebradley handle TTL and refreshing data
-    async getResults(term: NonEmptyString, minimumEbikesRange: number, limit: number): Promise<SearchResult[]> {
+    async getResults(term: NonEmptyString, limit: number): Promise<SearchResult[]> {
+        if (0 >= this.database.documentCount) {
+            // TODO: @jaebradley error handling and initialization
+            const data = await this.stationsAccessor.getStations();
+            const stationEbikes = await this.ebikesAccessor.getStationEbikes();
+            const stationStatuses = await this.stationStatusesAccessor.getStationStatuses();
+            // TODO: @jaebradley fix this prefix hacking
+            const bikesByStationId = new Map<string, EBikeInformation[]>(stationEbikes.data.stations.map(v => ([v.station_id.replace("motivate_BOS_", ""), v.ebikes])));
+            const statusesByStationId = new Map<string, StationStatus>(stationStatuses.data.stations.map(status => ([status.station_id, status])));
+            // TODO: @jaebradley make this status lookup more robust
+            // @ts-ignore
+            await this.database.addAllAsync(data.data.stations.map(station => ({
+                ...station,
+                id: station.station_id,
+                ebikes: bikesByStationId.get(station.station_id) || [],
+                status: statusesByStationId.get(station.station_id),
+            })));
+        }
+        // @ts-ignore
+        return Promise.resolve(this.database.search(term.value).slice(0, limit));
+    }
+
+    async getEbikesResults(term: NonEmptyString, minimumEbikesRange: number, minimumEbikesCount: number, limit: number): Promise<SearchResult[]> {
         if (0 >= this.database.documentCount) {
             // TODO: @jaebradley error handling and initialization
             const data = await this.stationsAccessor.getStations();
@@ -58,13 +82,14 @@ class SearchService implements ISearch {
         // @ts-ignore
         return Promise.resolve(this.database.search(term.value, {
             filter: (result) => {
-                if (minimumEbikesRange > 0) {
-                    return result.ebikes.some((ebike: EBikeInformation) => ebike.range_estimate.estimated_range_miles >= minimumEbikesRange)
-                }
-                return true;
+                const meetsRangeRequirement = result.ebikes.some((ebike: EBikeInformation) => ebike.range_estimate.estimated_range_miles >= minimumEbikesRange);
+                const meetsCountsRequirement = result.ebikes.length >= minimumEbikesCount;
+                return meetsRangeRequirement && meetsCountsRequirement;
             }
         }).slice(0, limit));
     }
+
+
 }
 
 export {
