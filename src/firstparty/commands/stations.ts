@@ -30,6 +30,7 @@ searchCommand
     .argument("<name>", "Station name")
     .option("-l, --limit [limit]", "Value is a positive number for the maximum inclusive number of results to return", parseInt, 5)
     // TODO: @jaebradley add filters for stations with available docks, stations with available bikes
+    // TODO: @jaebradley add filters for searching stations by lat/long + radius
     .action(async (name, {limit}) => {
         const spinner = yoctoSpinner({text: 'Searching stations\n'}).start();
         try {
