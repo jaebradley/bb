@@ -4,7 +4,7 @@ import axios from "axios";
 import {StationService} from "../data/services/bluebikes.js";
 import {TableGenerator} from "../data/services/tables.js";
 import {StationCommandProcessor} from "./service.js";
-import {NonEmptyStringSerializationUtility, UUIDSerializationUtility} from "../data/serializers/strings.js";
+import {NonEmptyStringSerializationUtility} from "../data/serializers/strings.js";
 import {SearchService} from "../data/services/search.js";
 // @ts-ignore
 import yoctoSpinner from "yocto-spinner";
@@ -14,9 +14,7 @@ const stationService = new StationService(client, client, new SearchService(clie
 
 const commandProcessor = new StationCommandProcessor(
     stationService,
-    stationService,
     new TableGenerator(),
-    UUIDSerializationUtility.DEFAULT_INSTANCE,
     NonEmptyStringSerializationUtility.DEFAULT_INSTANCE
 );
 
