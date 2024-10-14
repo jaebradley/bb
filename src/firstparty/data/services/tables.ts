@@ -1,50 +1,28 @@
 // @ts-ignore
 import Table from "cli-table3";
-import {EBikeInformation, Station} from "../../../thirdparty/bluebikes/types.js";
 import {SearchResult} from "./search.js";
+import {ISerializer} from "../serializers/strings.js";
+import {DockingStatus, EbikeData} from "../serializers/ebikes.js";
 
 interface ITableGenerator {
-    generateStationsTable(station: Station[]): Table;
-
-    generateEbikesTable(ebikes: EBikeInformation[]): Table;
-
     generateSearchResultsTable(results: SearchResult[]): Table;
+
     generateEbikesSearchResultsTable(results: SearchResult[]): Table;
 }
 
 class TableGenerator implements ITableGenerator {
+    readonly ebikesRangeSerializer: ISerializer<number[]>;
+    readonly ebikesAvailabilitySerializer: ISerializer<EbikeData[]>;
 
-    generateEbikesTable(ebikes: EBikeInformation[]): Table {
-        const table = new Table({
-            head: ['Battery', 'Range'],
-        });
-        ebikes.forEach(ebike => table.push([ebike.battery_charge_percentage, ebike.range_estimate.estimated_range_miles]))
-        return table;
-    }
 
-    generateStationsTable(station: Station[]): Table {
-        const table = new Table({
-            head: ['Name', 'ID', 'Capacity', 'Latitude', 'Longitude'],
-        });
-
-        station.forEach(station => {
-            table.push([
-                station.name,
-                station.station_id,
-                station.capacity,
-                station.lat,
-                station.lon,
-                // // @ts-ignore
-                // station.ebikes.map(ebike => ebike.range_estimate.estimated_range_miles).join(' | '),
-            ]);
-        })
-
-        return table;
+    constructor(ebikesRangeSerializer: ISerializer<number[]>, ebikesAvailabilitySerializer: ISerializer<EbikeData[]>) {
+        this.ebikesRangeSerializer = ebikesRangeSerializer;
+        this.ebikesAvailabilitySerializer = ebikesAvailabilitySerializer;
     }
 
     generateSearchResultsTable(results: SearchResult[]) {
         const table = new Table({
-            head: ['Name', 'Latitude', 'Longitude', 'eBikes', 'Docks'],
+            head: ['Name', 'eBikes', 'Docks'],
         });
 
         const serializeEbikeData = (result: SearchResult) => {
@@ -84,27 +62,19 @@ class TableGenerator implements ITableGenerator {
         const table = new Table({
             head: ['Name', 'eBikes', 'Range Available'],
         });
-
-        /**
-         * TODO: @jaebradley make this type require at least one ebike
-         * @param result
-         */
-        const serializeEbikeData = (result: SearchResult) => {
-            const allRangeEstimates = result.ebikes.map(ebike => ebike.range_estimate).map(estimate => estimate.estimated_range_miles);
-            const maxRangeEstimate = Math.max(...allRangeEstimates);
-            const minRangeEstimate = Math.min(...allRangeEstimates);
-
-            if (1 === result.status.num_ebikes_available) {
-                return `${minRangeEstimate}`;
-            }
-
-            return `${minRangeEstimate}-${maxRangeEstimate}`;
-        }
         results.forEach(result => {
             table.push([
                 result.name,
-                result.ebikes.length,
-                serializeEbikeData(result),
+                this.ebikesAvailabilitySerializer.serialize(
+                    result
+                        .ebikes
+                        .map(v =>
+                            ({
+                                range: v.range_estimate.estimated_range_miles,
+                                dockingStatus: v.docking_capability === 1 ? DockingStatus.DOCKABLE : DockingStatus.NOT_DOCKABLE
+                            })
+                        )),
+                this.ebikesRangeSerializer.serialize(result.ebikes.map(v => v.range_estimate.estimated_range_miles))
             ]);
         })
 
