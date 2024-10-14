@@ -8,13 +8,17 @@ import {NonEmptyStringSerializationUtility} from "../data/serializers/strings.js
 import {SearchService} from "../data/services/search.js";
 // @ts-ignore
 import yoctoSpinner from "yocto-spinner";
+import {EbikeAvailabilitySerializer, EbikeRangeSerializer} from "../data/serializers/ebikes.js";
 
 const client = new Client(axios.create());
 const stationService = new StationService(client, client, new SearchService(client, client, client));
 
 const commandProcessor = new StationCommandProcessor(
     stationService,
-    new TableGenerator(),
+    new TableGenerator(
+        new EbikeRangeSerializer(),
+        new EbikeAvailabilitySerializer(),
+    ),
     NonEmptyStringSerializationUtility.DEFAULT_INSTANCE
 );
 
@@ -31,6 +35,7 @@ searchCommand
     .option("-l, --limit [limit]", "Value is a positive number for the maximum inclusive number of results to return", parseInt, 5)
     // TODO: @jaebradley add filters for stations with available docks, stations with available bikes
     // TODO: @jaebradley add filters for searching stations by lat/long + radius
+    // TOOD: @jaebradley potentially add option for metric / imperial units
     .action(async (name, {limit}) => {
         const spinner = yoctoSpinner({text: 'Searching stations\n'}).start();
         try {
@@ -45,9 +50,9 @@ searchCommand
     .command("ebikes")
     .alias("e")
     .argument("<name>", "Station name")
-    .option("-l, --limit [limit]", "Value is a positive number for the maximum inclusive number of results to return", parseInt, 5)
-    .option("-r, --min-range [range]", "Value is a non-negative number for the minimum (inclusive) desired range for ebikes in miles", parseFloat, 0)
-    .option("-c, --min-count [count]", "Value is a positive integer for the minimum (inclusive) desired ebikes at station", parseInt, 1)
+    .option("-l, --limit [number]", "Value is a positive number for the maximum inclusive number of results to return", parseFloat, 5)
+    .option("-r, --min-range [number]", "Value is a non-negative number for the minimum (inclusive) desired range for ebikes in miles", parseFloat, 0)
+    .option("-c, --min-count [number]", "Value is a positive integer for the minimum (inclusive) desired ebikes at station", parseFloat, 1)
     .action(async (name, {limit, minRange, minCount}) => {
         const spinner = yoctoSpinner({text: 'Searching stations\n'}).start();
         try {
